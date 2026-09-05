@@ -125,3 +125,21 @@ def test_predict_ambiguous_intent_gaming_mitigation(client):
     assert data["safety_intervention"] is None
     assert data["predicted_class"] != 3
 
+
+def test_predict_negated_crisis_ideation(client):
+    payload = {
+        "text": "I have become tired of these constant exams and stress, I do not want to be alive anymore.",
+        "calibrate": True,
+        "model_type": "classical",
+    }
+    response = client.post("/api/v1/predict", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    # Must immediately identify severe crisis and activate 24/7 safety hotline protocol
+    assert data["predicted_class"] == 3
+    assert data["severity_label"] == "Severe Crisis"
+    assert data["severe_crisis_flag"] is True
+    assert data["safety_intervention"] is not None
+    assert data["probabilities"]["Severe Crisis"] >= 0.70
+
+

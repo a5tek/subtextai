@@ -82,20 +82,69 @@ DARK_HUMOR_MARKERS = [
     r"\blaughing through\b",
 ]
 
-UNDERLYING_DISTRESS_MARKERS = [
-    r"\bswerve\b",
-    r"\bbridge\b",
+CRISIS_KEYWORDS = [
+    # Explicit suicide / lethal self-harm
     r"\bkill myself\b",
-    r"\bwant to die\b",
-    r"\bend my life\b",
+    r"\bsuicide\b",
+    r"\bsuicidal\b",
     r"\bend it all\b",
+    r"\bend my life\b",
+    r"\bwant to die\b",
+    r"\btake my life\b",
+    r"\bgoodbye world\b",
     r"\boverdose\b",
     r"\bhanging\b",
-    r"\bsuicide\b",
-    r"\bjump off\b",
+    r"\bhang myself\b",
+    r"\bslit my wrists\b",
+    r"\bcut my wrists\b",
+    r"\bswallow pills\b",
+    r"\blethal dose\b",
+    r"\bjump off a bridge\b",
+    r"\bjump off the bridge\b",
+    # Negated desire to live / exist
+    r"\bnot want to be alive\b",
+    r"\bdo not want to be alive\b",
+    r"\bdon'?t want to be alive\b",
+    r"\bnot want to live\b",
+    r"\bdo not want to live\b",
+    r"\bdon'?t want to live\b",
+    r"\bnot wanting to live\b",
+    r"\bnot wanting to be alive\b",
+    r"\bnot want to exist\b",
+    r"\bdo not want to exist\b",
+    r"\bdon'?t want to exist\b",
+    r"\btired of living\b",
+    r"\btired of being alive\b",
+    r"\bdone with living\b",
+    r"\bdone with life\b",
+    r"\bstop living\b",
+    r"\bno reason to live\b",
+    r"\bno point in living\b",
+    r"\bno point living\b",
+    r"\bno will to live\b",
+    r"\bno desire to live\b",
+    r"\blost the will to live\b",
+    r"\blost all will to live\b",
+    # Wish to be dead
+    r"\bwish i was dead\b",
+    r"\bwish i were dead\b",
+    r"\brather be dead\b",
+    r"\bbetter off dead\b",
+    r"\bbetter off without me\b",
+    r"\beveryone would be better off without me\b",
+    # Finality / permanent disappearance
+    r"\bdisappear forever\b",
+    r"\bsleep forever\b",
+    r"\bnever wake up\b",
+    r"\bdon'?t want to wake up\b",
+    r"\bdo not want to wake up\b",
+]
+
+UNDERLYING_DISTRESS_MARKERS = CRISIS_KEYWORDS + [
+    r"\bswerve\b",
+    r"\bbridge\b",
     r"\bcut myself\b",
     r"\bcar crash\b",
-    r"\bwake up\b",
     r"\bworthless\b",
     r"\bnobody would care\b",
     r"\bgoodbye\b",
@@ -109,6 +158,9 @@ AMBIGUOUS_PHRASES = [
     r"\bquitting forever\b",
     r"\bgiving up\b",
     r"\bhad enough\b",
+    r"\btired of this\b",
+    r"\btired of these\b",
+    r"\bsick of this\b",
 ]
 
 BENIGN_CONTEXT_MARKERS = [
@@ -122,12 +174,7 @@ BENIGN_CONTEXT_MARKERS = [
     r"\bping\b",
     r"\blag\b",
     r"\bteammate\b",
-    r"\bhomework\b",
-    r"\bassignment\b",
-    r"\bexam\b",
     r"\btraffic\b",
-    r"\bboss\b",
-    r"\bshift\b",
     r"\bmovie\b",
     r"\bshow\b",
     r"\bwifi\b",
@@ -139,6 +186,7 @@ CRISIS_CONTEXT_MARKERS = [
     r"\bpain\b",
     r"\blife\b",
     r"\bliving\b",
+    r"\balive\b",
     r"\bletters\b",
     r"\bgoodbye\b",
     r"\bfamily\b",
@@ -152,18 +200,9 @@ CRISIS_CONTEXT_MARKERS = [
     r"\bdarkness\b",
     r"\bworld\b",
     r"\bnobody\b",
-]
-
-CRISIS_KEYWORDS = [
-    r"\bkill myself\b",
-    r"\bsuicide\b",
-    r"\bend it all\b",
-    r"\bend my life\b",
-    r"\bwant to die\b",
-    r"\btake my life\b",
-    r"\bgoodbye world\b",
-    r"\boverdose\b",
-    r"\bhanging\b",
+    r"\bdead\b",
+    r"\bdie\b",
+    r"\bdeath\b",
 ]
 
 
@@ -196,20 +235,21 @@ def analyze_linguistic_nuance(text: str) -> Dict[str, Any]:
     if has_ambiguity:
         has_benign = any(re.search(p, text_lower) for p in BENIGN_CONTEXT_MARKERS)
         has_crisis = any(re.search(p, text_lower) for p in CRISIS_CONTEXT_MARKERS)
+        has_explicit_crisis = any(re.search(p, text_lower) for p in CRISIS_KEYWORDS)
 
-        if has_benign and not has_crisis:
-            context_domain = "situational_inconvenience"
-            context_explanation = (
-                "Ambiguous distress phrase ('I'm done' / 'can't take this') was contextualized "
-                "by surrounding situational tokens (gaming, work, or routine frustration). "
-                "Context window indicates colloquial frustration rather than psychiatric crisis."
-            )
-        elif has_crisis:
+        if has_explicit_crisis or has_crisis:
             context_domain = "severe_distress"
             context_explanation = (
                 "Ambiguous distress phrase was contextualized by surrounding high-acuity tokens "
                 "(interpersonal departure, unendurable pain, or finality). "
                 "Context window confirms elevated psychological crisis."
+            )
+        elif has_benign and not has_explicit_crisis and not has_crisis:
+            context_domain = "situational_inconvenience"
+            context_explanation = (
+                "Ambiguous distress phrase ('I'm done' / 'can't take this') was contextualized "
+                "by surrounding situational tokens (gaming, work, or routine frustration). "
+                "Context window indicates colloquial frustration rather than psychiatric crisis."
             )
         else:
             context_domain = "unresolved_ambiguity"
@@ -341,20 +381,32 @@ class SubtextInferenceService:
             # Check subtle linguistic nuance (dark humor masks, ambiguous intent context windows)
             nuance = analyze_linguistic_nuance(sanitized_text)
 
+            # Check explicit crisis ideation
+            is_explicit_crisis = any(re.search(p, sanitized_text.lower()) for p in CRISIS_KEYWORDS)
+            if is_explicit_crisis:
+                pred_idx = 3
+                pred_label = self.classes[pred_idx]
+                probs = np.array([0.01, 0.04, 0.10, 0.85])
+                confidence = float(probs[pred_idx])
+                norm_entropy = 0.35
+                uncertainty_rating = "Low"
+                severe_crisis_flag = True
+
             # Context Window Disambiguation: avoid false alarms on situational gaming/work frustration
-            if nuance["context_domain"] == "situational_inconvenience":
-                if pred_idx == 3 and not any(re.search(p, sanitized_text.lower()) for p in CRISIS_KEYWORDS):
+            elif nuance["context_domain"] == "situational_inconvenience":
+                if pred_idx == 3:
                     pred_idx = 1
                     pred_label = self.classes[pred_idx]
                     probs = np.array([0.15, 0.70, 0.10, 0.05])
                     confidence = float(probs[pred_idx])
+                severe_crisis_flag = False
 
-            # Flag Severe Crisis if predicted severe, high probability, dark humor masking, or crisis context
-            severe_prob = float(probs[3])
-            severe_crisis_flag = bool(
-                (pred_idx == 3 or severe_prob >= 0.35 or nuance["masking_detected"] or nuance["context_domain"] == "severe_distress")
-                and nuance["context_domain"] != "situational_inconvenience"
-            )
+            else:
+                # Flag Severe Crisis if predicted severe, high probability, dark humor masking, or crisis context
+                severe_prob = float(probs[3])
+                severe_crisis_flag = bool(
+                    pred_idx == 3 or severe_prob >= 0.35 or nuance["masking_detected"] or nuance["context_domain"] == "severe_distress"
+                )
 
             prob_dict = {
                 self.classes[i]: round(float(probs[i]), 4)
@@ -441,20 +493,32 @@ class SubtextInferenceService:
         # Check subtle linguistic nuance (dark humor masks, ambiguous intent context windows)
         nuance = analyze_linguistic_nuance(sanitized_text)
 
+        # Check explicit crisis ideation
+        is_explicit_crisis = any(re.search(p, sanitized_text.lower()) for p in CRISIS_KEYWORDS)
+        if is_explicit_crisis:
+            pred_idx = 3
+            pred_label = self.classes[pred_idx]
+            probs = np.array([0.01, 0.04, 0.10, 0.85])
+            confidence = float(probs[pred_idx])
+            norm_entropy = 0.35
+            uncertainty_rating = "Low"
+            severe_crisis_flag = True
+
         # Context Window Disambiguation: avoid false alarms on situational gaming/work frustration
-        if nuance["context_domain"] == "situational_inconvenience":
-            if pred_idx == 3 and not any(re.search(p, sanitized_text.lower()) for p in CRISIS_KEYWORDS):
+        elif nuance["context_domain"] == "situational_inconvenience":
+            if pred_idx == 3:
                 pred_idx = 1
                 pred_label = self.classes[pred_idx]
                 probs = np.array([0.15, 0.70, 0.10, 0.05])
                 confidence = float(probs[pred_idx])
+            severe_crisis_flag = False
 
-        # 6. Severe Crisis Triage Flag
-        severe_prob = float(probs[3])
-        severe_crisis_flag = bool(
-            (pred_idx == 3 or severe_prob >= 0.35 or nuance["masking_detected"] or nuance["context_domain"] == "severe_distress")
-            and nuance["context_domain"] != "situational_inconvenience"
-        )
+        else:
+            # 6. Severe Crisis Triage Flag
+            severe_prob = float(probs[3])
+            severe_crisis_flag = bool(
+                pred_idx == 3 or severe_prob >= 0.35 or nuance["masking_detected"] or nuance["context_domain"] == "severe_distress"
+            )
 
         prob_dict = {
             self.classes[i]: round(float(probs[i]), 4)
