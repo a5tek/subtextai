@@ -1,0 +1,36 @@
+{
+  "macro_f1": 0.3426,
+  "weighted_f1": 0.3395,
+  "accuracy": 0.5,
+  "severe_crisis_recall": 0.0,
+  "severe_crisis_precision": 0.0,
+  "severe_crisis_f1": 0.0,
+  "per_class": {
+    "Control": {
+      "precision": 0.42105263157894735,
+      "recall": 1.0,
+      "f1": 0.5925925925925926,
+      "support": 8
+    },
+    "Low Stress": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "support": 7
+    },
+    "Moderate Distress": {
+      "precision": 0.6363636363636364,
+      "recall": 1.0,
+      "f1": 0.7777777777777778,
+      "support": 7
+    },
+    "Severe Crisis": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "support": 8
+    }
+  },
+  "macro_auroc": 0.9452,
+  "loss": 0.774
+}

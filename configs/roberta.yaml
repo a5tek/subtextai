@@ -1,0 +1,48 @@
+# Baseline Transformer Configuration: Fine-Tuned RoBERTa
+experiment_name: "roberta_cross_entropy"
+seed: 42
+
+data:
+  processed_dir: "data/processed"
+  dataset_file: "distress_severity.parquet"
+  train_split: 0.70
+  val_split: 0.15
+  test_split: 0.15
+  num_classes: 4
+  label_mapping:
+    0: "Control"
+    1: "Low Stress"
+    2: "Moderate Distress"
+    3: "Severe Crisis"
+
+model:
+  type: "transformer"
+  pretrained_model_name: "roberta-base"
+  num_labels: 4
+  classifier_dropout: 0.2
+
+tokenization:
+  max_length: 128
+  padding: "max_length"
+  truncation: true
+
+training:
+  batch_size: 16
+  eval_batch_size: 32
+  learning_rate: 2.0e-5
+  weight_decay: 0.01
+  num_epochs: 3
+  warmup_ratio: 0.1
+  lr_scheduler_type: "linear"
+  early_stopping_patience: 2
+  early_stopping_metric: "val_macro_f1"
+  gradient_accumulation_steps: 1
+  max_grad_norm: 1.0
+  fp16: false
+
+loss:
+  type: "cross_entropy"
+
+evaluation:
+  metrics: ["macro_f1", "per_class_f1", "severe_recall", "severe_precision", "confusion_matrix"]
+  output_dir: "experiments/roberta"

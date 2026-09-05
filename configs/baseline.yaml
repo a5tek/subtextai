@@ -1,0 +1,36 @@
+# Baseline Configuration: TF-IDF + Logistic Regression
+experiment_name: "baseline_tfidf_logreg"
+seed: 42
+
+data:
+  raw_dir: "data/raw"
+  interim_dir: "data/interim"
+  processed_dir: "data/processed"
+  dataset_file: "distress_severity.parquet"
+  train_split: 0.70
+  val_split: 0.15
+  test_split: 0.15
+  label_mapping:
+    0: "Control"
+    1: "Low Stress"
+    2: "Moderate Distress"
+    3: "Severe Crisis"
+
+model:
+  type: "classical"
+  vectorizer:
+    type: "tfidf"
+    max_features: 10000
+    ngram_range: [1, 2]
+    sublinear_tf: true
+    min_df: 2
+  classifier:
+    type: "logistic_regression"
+    C: 1.0
+    max_iter: 1000
+    solver: "lbfgs"
+    class_weight: "balanced"
+
+evaluation:
+  metrics: ["macro_f1", "per_class_f1", "severe_recall", "severe_precision", "confusion_matrix"]
+  output_dir: "experiments/baseline"

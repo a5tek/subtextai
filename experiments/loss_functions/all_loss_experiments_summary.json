@@ -1,0 +1,150 @@
+[
+  {
+    "name": "E1_cross_entropy",
+    "loss_type": "cross_entropy",
+    "macro_f1": 0.333,
+    "accuracy": 0.5,
+    "weighted_f1": 0.334,
+    "severe_crisis_recall": 0.0,
+    "severe_crisis_precision": 0.0,
+    "per_class": {
+      "Control": {
+        "precision": 0.5333333333333333,
+        "recall": 1.0,
+        "f1": 0.6956521739130435,
+        "support": 8
+      },
+      "Low Stress": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 7
+      },
+      "Moderate Distress": {
+        "precision": 0.4666666666666667,
+        "recall": 1.0,
+        "f1": 0.6363636363636364,
+        "support": 7
+      },
+      "Severe Crisis": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 8
+      }
+    },
+    "best_val_macro_f1": 0.3267,
+    "best_epoch": 2
+  },
+  {
+    "name": "E2_weighted_cross_entropy",
+    "loss_type": "weighted_cross_entropy",
+    "macro_f1": 0.1484,
+    "accuracy": 0.2667,
+    "weighted_f1": 0.1446,
+    "severe_crisis_recall": 0.0,
+    "severe_crisis_precision": 0.0,
+    "per_class": {
+      "Control": {
+        "precision": 0.3333333333333333,
+        "recall": 0.125,
+        "f1": 0.18181818181818182,
+        "support": 8
+      },
+      "Low Stress": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 7
+      },
+      "Moderate Distress": {
+        "precision": 0.25925925925925924,
+        "recall": 1.0,
+        "f1": 0.4117647058823529,
+        "support": 7
+      },
+      "Severe Crisis": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 8
+      }
+    },
+    "best_val_macro_f1": 0.2366,
+    "best_epoch": 2
+  },
+  {
+    "name": "E3_focal_loss",
+    "loss_type": "focal_loss",
+    "macro_f1": 0.3426,
+    "accuracy": 0.5,
+    "weighted_f1": 0.3395,
+    "severe_crisis_recall": 0.0,
+    "severe_crisis_precision": 0.0,
+    "per_class": {
+      "Control": {
+        "precision": 0.42105263157894735,
+        "recall": 1.0,
+        "f1": 0.5925925925925926,
+        "support": 8
+      },
+      "Low Stress": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 7
+      },
+      "Moderate Distress": {
+        "precision": 0.6363636363636364,
+        "recall": 1.0,
+        "f1": 0.7777777777777778,
+        "support": 7
+      },
+      "Severe Crisis": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 8
+      }
+    },
+    "best_val_macro_f1": 0.2896,
+    "best_epoch": 2
+  },
+  {
+    "name": "E4_weighted_focal_loss",
+    "loss_type": "weighted_focal_loss",
+    "macro_f1": 0.2833,
+    "accuracy": 0.4,
+    "weighted_f1": 0.2867,
+    "severe_crisis_recall": 0.0,
+    "severe_crisis_precision": 0.0,
+    "per_class": {
+      "Control": {
+        "precision": 0.7142857142857143,
+        "recall": 0.625,
+        "f1": 0.6666666666666666,
+        "support": 8
+      },
+      "Low Stress": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 7
+      },
+      "Moderate Distress": {
+        "precision": 0.30434782608695654,
+        "recall": 1.0,
+        "f1": 0.4666666666666667,
+        "support": 7
+      },
+      "Severe Crisis": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 8
+      }
+    },
+    "best_val_macro_f1": 0.3144,
+    "best_epoch": 2
+  }
+]

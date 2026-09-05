@@ -1,0 +1,16 @@
+sample_index,text,y_true,y_pred,true_label_name,pred_label_name,is_error,severity_step_diff,predicted_confidence,error_category
+5,I've written my goodbye letters and given away my dog. I finally feel a strange sense of peace. Call my direct number 555-01455 anytime.,3,2,Severe Crisis,Moderate Distress,True,1,0.2578,IMPLICIT_DISTRESS
+6,"I feel so fatigued today, need to cut down on caffeine and get some proper rest. Call my direct number 555-01152 anytime.",1,0,Low Stress,Control,True,1,0.2582,BORDERLINE_ADJACENT
+7,Work has been really demanding lately and I feel mentally drained by 5 PM every day. Check out the full story at [URL],1,2,Low Stress,Moderate Distress,True,1,0.2592,BORDERLINE_ADJACENT
+8,I can't do this anymore. Tonight is going to be my last night. Thank you to everyone who tried. Follow my account [USER] for updates.,3,0,Severe Crisis,Control,True,3,0.2576,IMPLICIT_DISTRESS
+10,Got into a minor argument with my roommate and it's making the apartment feel tense.,1,0,Low Stress,Control,True,1,0.2598,BORDERLINE_ADJACENT
+12,I have the pills on my table. I don't want to wake up tomorrow. Goodbye world. Email me at [EMAIL] if you want.,3,2,Severe Crisis,Moderate Distress,True,1,0.2583,NEGATION_FAILURE
+13,"I feel so fatigued today, need to cut down on caffeine and get some proper rest. Call my direct number 555-01155 anytime.",1,0,Low Stress,Control,True,1,0.2583,BORDERLINE_ADJACENT
+19,I have the pills on my table. I don't want to wake up tomorrow. Goodbye world. Reach out to [USER] on Reddit.,3,0,Severe Crisis,Control,True,3,0.2586,NEGATION_FAILURE
+20,Standing on the ledge right now. There's nothing left for me here. Farewell. Check out the full story at [URL],3,0,Severe Crisis,Control,True,3,0.2588,IMPLICIT_DISTRESS
+21,"Budget is tight this month after unexpected car repairs, feeling stressed about rent.",1,0,Low Stress,Control,True,1,0.2611,BORDERLINE_ADJACENT
+22,The pain is too much to bear and there is no other way out for me. This is the end. Email me at [EMAIL] if you want.,3,2,Severe Crisis,Moderate Distress,True,1,0.2582,IMPLICIT_DISTRESS
+23,The pain is too much to bear and there is no other way out for me. This is the end. Reach out to [USER] on Reddit.,3,0,Severe Crisis,Control,True,3,0.2586,IMPLICIT_DISTRESS
+24,Everything is arranged. I am ready to disappear forever. Nobody can change my mind now. Reach out to [USER] on Reddit.,3,0,Severe Crisis,Control,True,3,0.259,IMPLICIT_DISTRESS
+25,Exams are starting next Monday and I'm really stressed about memorizing all this material. Check out the full story at [URL],1,0,Low Stress,Control,True,1,0.2593,BORDERLINE_ADJACENT
+27,"Feeling pretty overwhelmed with work deadlines this week, barely getting 5 hours of sleep.",1,0,Low Stress,Control,True,1,0.2592,BORDERLINE_ADJACENT

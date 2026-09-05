@@ -1,0 +1,34 @@
+# Domain-Adapted Transformer Configuration (Phase 7 / E6)
+experiment_name: "domain_mentalbert"
+seed: 42
+
+model:
+  type: "transformer"
+  # MentalBERT / mental-roberta pretrained on Reddit mental health subreddits
+  pretrained_model_name: "mental/mental-roberta-base"
+  fallback_model_name: "mental/mental-bert-base-uncased"
+  num_labels: 4
+  classifier_dropout: 0.2
+
+tokenization:
+  max_length: 256
+  padding: "max_length"
+  truncation: true
+
+training:
+  batch_size: 16
+  eval_batch_size: 32
+  learning_rate: 2.0e-5
+  weight_decay: 0.01
+  num_epochs: 4
+  warmup_ratio: 0.1
+  lr_scheduler_type: "linear"
+  early_stopping_patience: 2
+  early_stopping_metric: "val_macro_f1"
+
+loss:
+  type: "cross_entropy"
+
+evaluation:
+  metrics: ["macro_f1", "per_class_f1", "severe_recall", "severe_precision", "confusion_matrix"]
+  output_dir: "experiments/domain_model"

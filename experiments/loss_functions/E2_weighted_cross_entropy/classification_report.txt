@@ -1,0 +1,17 @@
+SUBTEXT CLASSIFICATION REPORT
+============================================================
+Primary Metric (Macro F1): 0.1484
+Severe Crisis Sensitivity: 0.0000
+Severe Crisis Precision:   0.0000
+============================================================
+
+                   precision    recall  f1-score   support
+
+          Control     0.3333    0.1250    0.1818         8
+       Low Stress     0.0000    0.0000    0.0000         7
+Moderate Distress     0.2593    1.0000    0.4118         7
+    Severe Crisis     0.0000    0.0000    0.0000         8
+
+         accuracy                         0.2667        30
+        macro avg     0.1481    0.2812    0.1484        30
+     weighted avg     0.1494    0.2667    0.1446        30
