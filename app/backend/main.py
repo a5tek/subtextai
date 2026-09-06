@@ -164,7 +164,7 @@ def demonstration_ui():
     """
     Serves interactive demonstration frontend dashboard.
     """
-    html_content = """
+    html_content = r"""
     <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -251,6 +251,45 @@ def demonstration_ui():
           cursor: pointer;
         }
         .btn-analyze:hover { background: var(--primary-hover); }
+        .btn-clear {
+          background: transparent;
+          color: var(--text-muted);
+          border: 1px solid var(--border);
+          padding: 0.65rem 1.15rem;
+          border-radius: 8px;
+          font-size: 0.9rem;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        .btn-clear:hover { background: #334155; color: var(--text); }
+        .btn-copy {
+          background: #334155;
+          color: #E2E8F0;
+          border: 1px solid var(--border);
+          padding: 0.35rem 0.85rem;
+          border-radius: 6px;
+          font-size: 0.8rem;
+          font-weight: 600;
+          cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          gap: 0.35rem;
+          transition: all 0.2s ease;
+        }
+        .btn-copy:hover { background: #475569; border-color: var(--primary); }
+        .sanitized-preview {
+          background: #0F172A;
+          border: 1px dashed #3B82F6;
+          border-radius: 6px;
+          padding: 0.65rem 0.85rem;
+          font-family: monospace;
+          font-size: 0.85rem;
+          color: #93C5FD;
+          margin-top: 0.35rem;
+          white-space: pre-wrap;
+          word-break: break-word;
+        }
         .results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; }
         @media (max-width: 650px) { .results-grid { grid-template-columns: 1fr; } }
         .stat-box {
@@ -295,6 +334,10 @@ def demonstration_ui():
         <div class="card">
           <label for="inputText">Input Text (Social Media / Online Post)</label>
           <textarea id="inputText" placeholder="Enter text to analyze..."></textarea>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.4rem; font-size: 0.75rem; color: var(--text-muted);">
+            <span id="textMetrics">0 words &bull; 0 characters</span>
+            <span id="lengthGuidance" style="color: #10B981;">&check; Optimal length (&le; 128 tokens)</span>
+          </div>
           <div class="preset-buttons">
             <span style="font-size: 0.8rem; color: var(--text-muted); align-self: center;">Try examples:</span>
             <button class="preset-btn" onclick="setPreset('midterm is literally killing me right now, so stressed out!')">Colloquial Hyperbole</button>
@@ -311,8 +354,8 @@ def demonstration_ui():
               <div>
                 <label style="display: inline; font-size: 0.85rem; font-weight: 600; margin-right: 0.35rem;">Model Engine:</label>
                 <select id="modelSelector" style="background: #0F172A; color: #E2E8F0; border: 1px solid var(--border); border-radius: 6px; padding: 0.35rem 0.6rem; font-size: 0.85rem;">
-                  <option value="classical" selected>Classical Baseline (TF-IDF + LogReg, 96.7% Test Acc)</option>
-                  <option value="roberta">Deep Transformer (RoBERTa-base)</option>
+                  <option value="roberta" selected>Deep Contextual Transformer (RoBERTa-base — 97.8% Test Acc)</option>
+                  <option value="classical">Classical Baseline (TF-IDF + LogReg — 80.4% Test Acc)</option>
                 </select>
               </div>
               <div>
@@ -321,7 +364,10 @@ def demonstration_ui():
                 </label>
               </div>
             </div>
-            <button class="btn-analyze" id="btnAnalyze" onclick="analyzeText()">Analyze Severity</button>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <button class="btn-clear" id="btnClear" onclick="clearInput()">Clear</button>
+              <button class="btn-analyze" id="btnAnalyze" onclick="analyzeText()">Analyze Severity</button>
+            </div>
           </div>
         </div>
 
@@ -344,7 +390,10 @@ def demonstration_ui():
             <div style="font-size: 0.85rem; color: #E2E8F0; line-height: 1.45;" id="nuanceBody"></div>
           </div>
 
-          <h3>Inference Results</h3>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <h3 style="margin: 0;">Inference Results</h3>
+            <button class="btn-copy" id="btnCopyJson" onclick="copyResultsJson()">📋 Copy Raw JSON</button>
+          </div>
           <div class="results-grid">
             <div class="stat-box">
               <div class="stat-label">Predicted Severity Tier</div>
@@ -364,6 +413,12 @@ def demonstration_ui():
             </div>
           </div>
 
+          <!-- Sanitized Preview if PII Redacted -->
+          <div id="sanitizedViewRow" style="margin-top: 1.25rem; display: none;">
+            <div style="font-size: 0.8rem; font-weight: 600; color: #93C5FD; margin-bottom: 0.2rem;">Sanitized Input (Ethical PII Scrubbed):</div>
+            <div class="sanitized-preview" id="sanitizedTextDisplay"></div>
+          </div>
+
           <div style="margin-top: 1.5rem;">
             <h4>Class Probability Distribution</h4>
             <div id="probBars"></div>
@@ -380,8 +435,66 @@ def demonstration_ui():
       </div>
 
       <script>
+        let lastInferenceData = null;
+
+        function updateTextMetrics() {
+          const text = document.getElementById('inputText').value;
+          const charCount = text.length;
+          const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+          document.getElementById('textMetrics').textContent = `${words} words • ${charCount} characters`;
+
+          const guidance = document.getElementById('lengthGuidance');
+          if (words > 120) {
+            guidance.textContent = '⚠️ Long sequence (>120 words), may truncate at 128 tokens';
+            guidance.style.color = '#F59E0B';
+          } else {
+            guidance.textContent = '✓ Optimal length (≤ 128 tokens)';
+            guidance.style.color = '#10B981';
+          }
+        }
+
+        document.getElementById('inputText').addEventListener('input', updateTextMetrics);
+
         function setPreset(txt) {
           document.getElementById('inputText').value = txt;
+          updateTextMetrics();
+        }
+
+        function clearInput() {
+          document.getElementById('inputText').value = '';
+          updateTextMetrics();
+          document.getElementById('resultsCard').style.display = 'none';
+          lastInferenceData = null;
+        }
+
+        async function copyResultsJson() {
+          if (!lastInferenceData) return;
+          const btn = document.getElementById('btnCopyJson');
+          const jsonStr = JSON.stringify(lastInferenceData, null, 2);
+          try {
+            if (navigator.clipboard && window.isSecureContext) {
+              await navigator.clipboard.writeText(jsonStr);
+            } else {
+              const ta = document.createElement('textarea');
+              ta.value = jsonStr;
+              ta.style.position = 'fixed';
+              ta.style.opacity = '0';
+              document.body.appendChild(ta);
+              ta.select();
+              document.execCommand('copy');
+              document.body.removeChild(ta);
+            }
+            btn.textContent = '✓ Copied!';
+            btn.style.borderColor = '#10B981';
+            btn.style.color = '#6EE7B7';
+            setTimeout(() => {
+              btn.textContent = '📋 Copy Raw JSON';
+              btn.style.borderColor = 'var(--border)';
+              btn.style.color = '#E2E8F0';
+            }, 2000);
+          } catch (e) {
+            alert('Failed to copy: ' + e.message);
+          }
         }
 
         async function analyzeText() {
@@ -410,6 +523,7 @@ def demonstration_ui():
         }
 
         function renderResults(data) {
+          lastInferenceData = data;
           document.getElementById('resultsCard').style.display = 'block';
 
           // 1. Safety Protocol: Crisis Support Card Wireup
@@ -471,6 +585,15 @@ def demonstration_ui():
 
           document.getElementById('resSanitization').textContent =
             data.pii_redacted ? `Redactions: ${JSON.stringify(data.redaction_details)}` : 'Clean (No PII detected)';
+
+          // Sanitized Text Preview
+          const sanView = document.getElementById('sanitizedViewRow');
+          if (data.pii_redacted && data.sanitized_text) {
+            sanView.style.display = 'block';
+            document.getElementById('sanitizedTextDisplay').textContent = data.sanitized_text;
+          } else {
+            sanView.style.display = 'none';
+          }
 
           // Probability bars
           const probContainer = document.getElementById('probBars');
