@@ -161,12 +161,16 @@ AMBIGUOUS_PHRASES = [
     r"\btired of this\b",
     r"\btired of these\b",
     r"\bsick of this\b",
+    r"\bliterally going to die\b",
+    r"\bgoing to die\b",
+    r"\bkill me\b",
 ]
 
 BENIGN_CONTEXT_MARKERS = [
     r"\bmatch\b",
     r"\bmatches\b",
     r"\bgame\b",
+    r"\bgames\b",
     r"\bgaming\b",
     r"\branked\b",
     r"\brage quit\b",
@@ -180,29 +184,27 @@ BENIGN_CONTEXT_MARKERS = [
     r"\bwifi\b",
     r"\bcode\b",
     r"\bbug\b",
+    r"\blost\b",
+    r"\blosing\b",
+    r"\bscore\b",
+    r"\brespawn\b",
 ]
 
 CRISIS_CONTEXT_MARKERS = [
-    r"\bpain\b",
-    r"\blife\b",
-    r"\bliving\b",
-    r"\balive\b",
+    r"\bunbearable pain\b",
+    r"\bsevere pain\b",
     r"\bletters\b",
-    r"\bgoodbye\b",
-    r"\bfamily\b",
-    r"\bdog\b",
+    r"\bgoodbye everyone\b",
+    r"\bfamily goodbye\b",
     r"\bbelongings\b",
     r"\bgive away\b",
     r"\bgave away\b",
     r"\bpills\b",
     r"\bbridge\b",
-    r"\bempty\b",
     r"\bdarkness\b",
-    r"\bworld\b",
-    r"\bnobody\b",
-    r"\bdead\b",
-    r"\bdie\b",
-    r"\bdeath\b",
+    r"\bnobody cares\b",
+    r"\bno reason to live\b",
+    r"\bbetter off without me\b",
 ]
 
 

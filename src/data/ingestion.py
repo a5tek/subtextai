@@ -126,7 +126,10 @@ def load_raw_dataset(
 
     # Ensure label column exists
     if "label" not in df.columns:
-        raise DatasetValidationError("Dataset must contain a 'label' column.")
+        if "severity_level" in df.columns:
+            df = df.rename(columns={"severity_level": "label"})
+        else:
+            raise DatasetValidationError("Dataset must contain a 'label' column.")
 
     # Generate deterministic IDs if not present
     if "id" not in df.columns:
@@ -137,6 +140,30 @@ def load_raw_dataset(
     # Assign source if not present
     if "source" not in df.columns:
         df["source"] = source_name or path.stem
+
+    # Map string labels to numeric integers if necessary
+    LABEL_TEXT_MAP = {
+        "control": 0,
+        "low stress": 1,
+        "low_stress": 1,
+        "stress": 1,
+        "moderate distress": 2,
+        "moderate_distress": 2,
+        "distress": 2,
+        "severe crisis": 3,
+        "severe_crisis": 3,
+        "crisis": 3,
+    }
+    if df["label"].dtype == object or isinstance(df["label"].iloc[0], str):
+        if "severity_level" in df.columns and pd.to_numeric(df["severity_level"], errors="coerce").notnull().all():
+            df["label"] = df["severity_level"].astype(int)
+        else:
+            cleaned_str = df["label"].astype(str).str.strip().str.lower()
+            mapped = cleaned_str.map(LABEL_TEXT_MAP)
+            if mapped.notnull().all():
+                df["label"] = mapped.astype(int)
+            else:
+                df["label"] = pd.to_numeric(df["label"], errors="coerce")
 
     # Ensure labels are integers
     df["label"] = df["label"].astype(int)
