@@ -528,6 +528,7 @@ class SubtextInferenceService:
         result = {
             "original_text": raw_text,
             "sanitized_text": sanitized_text,
+            "model_used": active_model_name,
             "pii_redacted": audit.has_modifications,
             "redaction_details": audit.replacements,
             "predicted_class": pred_idx,
